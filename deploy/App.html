@@ -70,12 +70,12 @@ function initTaskboard() {
 
             "users"             : "/users?fetch=displayname,loginname,emailaddress,objectid" + paging,
 
-            "tasks"             : "/tasks?fetch=taskindex,name,objectid,formattedid,owner,blocked,estimate,todo,actuals,state,workproduct&query=(Iteration = ${iteration})" + scoping + paging,
+            "tasks"             : "/tasks?fetch=taskindex,name,objectid,formattedid,owner,blocked,estimate,todo,actuals,state,workproduct&query=(ObjectID > 0)" + scoping + paging,
 
-            "stories"           : "/hierarchicalrequirement?fetch=rank,blocked,formattedid,name,objectid,owner,project,schedulestate,taskestimatetotal,taskremainingtotal,taskactualtotal,tasks&order=Rank&query=(Iteration = ${iteration})" + scoping + paging,
-            "defects"           : "/defect?fetch=rank,blocked,formattedid,name,objectid,owner,project,schedulestate,taskestimatetotal,taskremainingtotal,taskactualtotal&order=Rank&query=(Iteration = ${iteration})" + scoping + paging,
-            "defectsuite"       : "/defectsuite?fetch=rank,blocked,formattedid,name,objectid,owner,project,schedulestate,taskestimatetotal,taskremainingtotal,taskactualtotal&order=Rank&query=(Iteration = ${iteration})" + scoping + paging,
-            "testsets"          : "/testset?fetch=rank,blocked,formattedid,name,objectid,owner,project,schedulestate,taskestimatetotal,taskremainingtotal,taskactualtotal&query=(Iteration = ${iteration})" + scoping + paging
+            "stories"           : "/hierarchicalrequirement?fetch=rank,blocked,formattedid,name,objectid,owner,project,schedulestate,taskestimatetotal,taskremainingtotal,taskactualtotal,tasks&order=Rank&query=(ObjectID > 0)" + scoping + paging,
+            "defects"           : "/defect?fetch=rank,blocked,formattedid,name,objectid,owner,project,schedulestate,taskestimatetotal,taskremainingtotal,taskactualtotal&order=Rank&query=(ObjectID > 0)" + scoping + paging,
+            "defectsuite"       : "/defectsuite?fetch=rank,blocked,formattedid,name,objectid,owner,project,schedulestate,taskestimatetotal,taskremainingtotal,taskactualtotal&order=Rank&query=(ObjectID > 0)" + scoping + paging,
+            "testsets"          : "/testset?fetch=rank,blocked,formattedid,name,objectid,owner,project,schedulestate,taskestimatetotal,taskremainingtotal,taskactualtotal&query=(ObjectID > 0)" + scoping + paging
         };
     }
 
@@ -353,7 +353,8 @@ function initTaskboard() {
             if (itr) {
                 query.iteration = "/iterations?fetch=name,objectid&order=StartDate&query=(ObjectID = " + itr + ")";
             } else {
-                query.iteration = "/iteration:current?fetch=name,objectid&order=StartDate";
+                //>query.iteration = "/iteration:current?fetch=name,objectid&order=StartDate";
+                delete query.iteration;
             }
 
             setStatus('Loading...');
@@ -367,13 +368,13 @@ function initTaskboard() {
                     var i;
 
                     that.hideAcceptedControl = Dom.get('hide_accepted_control');
-                    that.iterationSelect = Dom.get('change_iteration_control');
+                    //that.iterationSelect = Dom.get('change_iteration_control');
 
                     // clear out the grid container and any state-dependant vars
                     YAHOO.util.Dom.get('taskboard').innerHTML = '';
                     that.users = [];
                     YAHOO.util.Event.removeListener(that.hideAcceptedControl, 'click');
-                    YAHOO.util.Event.removeListener(that.iterationSelect, 'change');
+                    //YAHOO.util.Event.removeListener(that.iterationSelect, 'change');
 
 
                     if (model.errors.length > 0) {
@@ -394,6 +395,8 @@ function initTaskboard() {
 
                     // add in the header info
                     Dom.get('proj_name').innerHTML = model.items[0].project.Name;
+                    
+                    /*
                     Dom.get('info').innerHTML = (model.items[0].iteration.Name || '') + '<br/>' + (RALLY.Date.formatNow());
 
                     // build the iteration select
@@ -410,6 +413,8 @@ function initTaskboard() {
                     }
                     Event.removeListener(that.iterationSelect, 'change');
                     Event.addListener(that.iterationSelect, 'change', that.updateIteration, that, true);
+                    
+                    */
 
                     if (model.items[0].tasks.length == 0 && model.items[0].workProducts.length == 0) {
                         RALLY.toolkit.showError('There are no stories to display for the given iteration');
@@ -1025,8 +1030,8 @@ YAHOO.util.Event.addListener(window, 'load', initTaskboard);
                 </span>
         </div>
                 <span id="change_iteration">
-                    Change iteration:
-                    <select id="change_iteration_control" size="1"></select>
+                    <!-- Change iteration:
+                    <select id="change_iteration_control" size="1"></select> -->
                 </span>
                 <span id="filter_user">
                     Show work owned by:

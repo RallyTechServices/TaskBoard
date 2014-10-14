@@ -24,7 +24,7 @@ You can:
 * Edit the Estimate, To Do, Owner, and State fields without leaving the board
 * Delete tasks
 * View blocked tasks
-* Filter content by owner, accepted state, and iteration
+* Filter content by owner, accepted state
 
 ## Customize this App
 
