@@ -55,18 +55,13 @@ function initTaskboard() {
     // use this to rebuild the full query, stitching in the
     // project scoping information from the top-level variables above
     function getQuery() {
-        var scoping = "&project=${currentProject}&projectScopeUp=" + projectScopeUp + "&projectScopeDown=" + projectScopeDown;
+        var scoping = "&project=/project/" + currentProjectOid + "&projectScopeUp=" + projectScopeUp + "&projectScopeDown=" + projectScopeDown;
         var paging = "&pagesize=100";
 
         return {
-            "currentProject"   : "/iteration:current/project",
             "#storyType"        : "/typedefinition?query=(Name = \"Hierarchical Requirement\")",
 
-            "taskUnit"          : "${iteration/workspace/workspaceConfiguration/taskUnitName}",
             "storyStates"       : "${#storyType/attributes[name=schedule state]/allowedvalues/stringvalue}",
-
-            "iteration"         : "/iteration:current?fetch=name,objectid&order=StartDate",
-            "iterations"        : "/iterations?fetch=name,objectid&order=StartDate,Name&project=${currentProject}&projectScopeUp=false&projectScopeDown=false" + paging,
 
             "users"             : "/users?fetch=displayname,loginname,emailaddress,objectid" + paging,
 
@@ -89,7 +84,7 @@ function initTaskboard() {
     var projScopeUpControl = Dom.get('proj_scope_up_control');
     var projScopeDownControl = Dom.get('proj_scope_down_control');
     if (insideRally) {
-        Dom.setStyle(Dom.get('project'), 'display', 'none');
+        // Dom.setStyle(Dom.get('project'), 'display', 'none');
     } else {
         projScopeUpControl.checked = projectScopeUp;
         projScopeDownControl.checked = projectScopeDown;
@@ -364,7 +359,10 @@ function initTaskboard() {
                     adHocQuery: query,
                     cpoid: currentProjectOid
                 };
+                console.log("about to get items",queryWithParams);
                 this.dataSource.get(function(model) {
+                    console.log("back from dataSource.get",model);
+                    
                     var i;
 
                     that.hideAcceptedControl = Dom.get('hide_accepted_control');
@@ -376,7 +374,7 @@ function initTaskboard() {
                     YAHOO.util.Event.removeListener(that.hideAcceptedControl, 'click');
                     //YAHOO.util.Event.removeListener(that.iterationSelect, 'change');
 
-
+console.log("before error check");
                     if (model.errors.length > 0) {
                         html.push('<ul>');
                         for (i = 0,len = model.errors.length; i < len; i++) {
@@ -388,43 +386,20 @@ function initTaskboard() {
                         setStatus();
                         return;
                     } else if (model.items.length == 0 || (model.items.length == 1 && model.items[0].iteration == null)) {
-                        RALLY.toolkit.showError('There are no stories to display in the selected project');
-                        setStatus();
-                        return;
+                        //RALLY.toolkit.showError('There are no stories to display in the selected project');
+                        //setStatus();
+                        //return;
                     }
-
-                    // add in the header info
-                    Dom.get('proj_name').innerHTML = model.items[0].project.Name;
-                    
-                    /*
-                    Dom.get('info').innerHTML = (model.items[0].iteration.Name || '') + '<br/>' + (RALLY.Date.formatNow());
-
-                    // build the iteration select
-                    selectedIteration = RALLY.toolkit.Cookie.get(that.iterationCookieKey);
-                    iterations = model.items[0].iterations;
-                    that.iterations = model.items[0].iterations;
-                    RALLY.toolkit.HTML.clearSelect(that.iterationSelect);
-                    for (i = 0,len = iterations.length; i < len; i++) {
-                        that.iterationSelect.options[that.iterationSelect.options.length] = new Option(iterations[i].Name, iterations[i].ObjectID);
-                        if (iterations[i].ObjectID == selectedIteration || iterations[i].Name == model.items[0].iteration.Name) {
-                            RALLY.toolkit.Cookie.add(that.iterationCookieKey, iterations[i].ObjectID);
-                            that.iterationSelect.selectedIndex = i;
-                        }
-                    }
-                    Event.removeListener(that.iterationSelect, 'change');
-                    Event.addListener(that.iterationSelect, 'change', that.updateIteration, that, true);
-                    
-                    */
 
                     if (model.items[0].tasks.length == 0 && model.items[0].workProducts.length == 0) {
                         RALLY.toolkit.showError('There are no stories to display for the given iteration');
                         setStatus();
                         return;
                     }
-
+console.log("build the grid");
                     // build the grid
                     that.view.display(model);
-
+console.log("after the grid");
                     // should we hide accepted work?
                     if (RALLY.toolkit.Cookie.get(that.acceptedCookieKey) == 'true' || RALLY.toolkit.Cookie.get(that.acceptedCookieKey) == null) {
                         that.hideAcceptedControl.checked = true;
@@ -787,12 +762,6 @@ function initTaskboard() {
                 }
             }
 
-            if (shown == 0 && shownAccepted > 0) {
-                RALLY.toolkit.showWarning('The selected owner has only accepted stories and/or tasks');
-            }
-            if ((shown + shownAccepted) == 0) {
-                RALLY.toolkit.showWarning('The selected owner does not own any stories or tasks');
-            }
         },
 
         updateIteration: function() {
@@ -969,7 +938,7 @@ YAHOO.util.Event.addListener(window, 'load', initTaskboard);
         /** filter bar **/
     #filter {
         width: 100%;
-        background-color: #efefdf;
+        background-color: #D1F0FF;
         text-align: left;
         font-size: .9em;
         padding: .2em 0;
